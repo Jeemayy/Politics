@@ -1,0 +1,96 @@
+#########################################
+# Import Library dan Baca file dari .RData
+install.packages("tidyverse")
+library(tidyverse)
+library(dplyr)
+library(pander)
+library(kableExtra)
+
+maja = Jabar9_Mj
+View(maja)
+
+###################### Simpan hasil pemisahan dalam bentuk csv ######################
+# Pilih folder untuk menyimpan file hasil pemisahan
+path <- choose.dir()
+
+# Memastikan bahwa path tidak kosong dan melanjutkan proses
+if (nzchar(path)) {
+  # Mendapatkan nilai unik dari kolom "no_tps" dan "kel"
+  unique_no_tps <- unique(maja$no_tps)
+  unique_kel <- unique(maja$kel)
+  
+  # Melakukan loop untuk setiap kombinasi no_tps dan kel
+  for (tps in unique_no_tps) {
+    for (kel_value in unique_kel) {
+      # Mengganti nilai no_tps dan kel
+      nilai_tps <- tps
+      nilai_kel <- kel_value
+      
+      # Memotong baris data berdasarkan nilai pada kolom "no_tps" dan "kel"
+      subset_data <- maja %>%
+        filter(no_tps == nilai_tps, kel == nilai_kel)
+      
+      # Menyusun nama file berdasarkan kombinasi no_tps dan kel
+      nama_file <- paste0("subset_", nilai_tps, "_", nilai_kel, ".csv")
+      
+      # Buat path
+      full_path <- file.path(path, nama_file)
+      
+      # Menyimpan subset data ke CSV
+      write.csv(subset_data, file = full_path, row.names = FALSE)
+    }
+  }
+} else {
+  print("Pilih folder penyimpanan.")
+}
+
+
+########################## Simpan Hasil Pemisahan dalam Bentuk Excel #################################
+library(tidyverse)
+library(openxlsx)
+
+# Pilih folder untuk menyimpan file hasil pemisahan
+path <- choose.dir()
+
+maja[] <- lapply(maja, function(x) iconv(x, "UTF-8", "UTF-8", sub = ""))
+
+# Replace non-UTF-8 characters with a placeholder
+maja[] <- lapply(maja, function(x) iconv(x, "UTF-8", "UTF-8", sub = "", to = "ASCII//TRANSLIT"))
+
+# Or you can remove non-UTF-8 characters
+maja[] <- lapply(maja, function(x) iconv(x, "UTF-8", "UTF-8", sub = ""))
+
+
+# Pilih folder penyimpanan
+path <- choose.dir()
+
+# Memastikan bahwa path tidak kosong supaya looping berjalan
+if (nzchar(path)) {
+  # Mendapatkan nilai unik dari kolom "no_tps" dan "kel"
+  unique_no_tps <- unique(maja$no_tps)
+  unique_kel <- unique(maja$kel)
+  
+  # Melakukan looping untuk setiap pilihan dari no_tps dan kel berdsasrkan nilai uniknya
+  for (tps in unique_no_tps) {
+    for (kel_value in unique_kel) {
+      # Mengganti nilai no_tps dan kel
+      nilai_tps <- tps
+      nilai_kel <- kel_value
+      
+      # Memotong baris data berdasarkan nilai pada kolom "no_tps" dan "kel"
+      subset_data <- maja %>%
+        filter(no_tps == nilai_tps, kel == nilai_kel)
+      
+      # Menyusun nama file berdasarkan kombinasi no_tps dan kel
+      nama_file <- paste0("subset_", nilai_tps, "_", nilai_kel, ".xlsx")
+      
+      # Buat File Path
+      full_path <- file.path(path, nama_file)
+      
+      # Simpan subset ke excel
+      write.xlsx(subset_data, file = full_path, row.names = FALSE)
+    }
+  }
+} else {
+  print("Pilih folder penyimpanan.")
+}
